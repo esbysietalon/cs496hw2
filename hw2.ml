@@ -64,18 +64,19 @@ let rec list_to_tree: char list -> dtree = fun l ->
     | [] -> Leaf(0)
     | h::t -> Node(h, list_to_tree t, list_to_tree t)
 
-let rec replace_leaf_at_helper: dtree -> (char list * int) -> dtree = fun d n ->
+let rec replace_leaf_at_helper: dtree -> (int list * int) -> dtree = fun d n ->
 	match n with 
 	| (l, i) -> (
 		match l, d with
 		| [], Leaf(_) -> Leaf(i)
-		| h::t, Node(_, lt, rt) -> (
+		| h::t, Node(c, lt, rt) -> (
 			match h with
-			| 0 -> Node(_, replace_leaf_at_helper lt (t, i), rt)
-			| 1 -> Node(_, lt, replace_leaf_at_helper rt (t, i))
+			| 0 -> Node(c, replace_leaf_at_helper lt (t, i), rt)
+			| 1 -> Node(c, lt, replace_leaf_at_helper rt (t, i))
+			| _ -> failwith"invalid graph"
 		)
 		| h::t, Leaf(_) -> failwith"graph location is out of bounds"
-		| [], Node(_, _, _) -> failwith"graph location does not exist in tree"
+		| [], Node(_, __, ___) -> failwith"graph location does not exist in tree"
 	)
 
 let rec replace_leaf_at: dtree -> graph -> dtree = fun d g ->
