@@ -29,6 +29,7 @@ let tUnevenSym : dtree = Node('w',
                                     Leaf(2),
                                     Leaf(5)) ) )
 
+
 let f_graph : graph = [([0;0;0] , 0); ([0;0;1] , 1); ([0;1;0] , 1); ([0;1;1] , 0); ([1;0;0] , 1); ([1;0;1] , 0); ([1;1;0] , 0); ([1;1;1] , 1)]
 
 let rec dTree_height: dtree -> int = fun t ->
@@ -63,8 +64,24 @@ let rec list_to_tree: char list -> dtree = fun l ->
     | [] -> Leaf(0)
     | h::t -> Node(h, list_to_tree t, list_to_tree t)
 
+let rec replace_leaf_at_helper: dtree -> (char list * int) -> dtree = fun d n ->
+	match n with 
+	| (l, i) -> (
+		match l, d with
+		| [], Leaf(_) -> Leaf(i)
+		| h::t, Node(_, lt, rt) -> (
+			match h with
+			| 0 -> Node(_, replace_leaf_at_helper lt (t, i), rt)
+			| 1 -> Node(_, lt, replace_leaf_at_helper rt (t, i))
+		)
+		| h::t, Leaf(_) -> failwith"graph location is out of bounds"
+		| [], Node(_, _, _) -> failwith"graph location does not exist in tree"
+	)
+
 let rec replace_leaf_at: dtree -> graph -> dtree = fun d g ->
-    failwith"implement"
+	match g with
+	| [] -> d
+	| h::t -> replace_leaf_at (replace_leaf_at_helper d h) t
 
 let bf_to_dTree: pair_encoding -> dtree = fun pe ->
     match pe with
